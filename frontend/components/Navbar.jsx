@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 
 const navLinks = [
   { href: "/dashboard", label: "Dashboard" },
-  { href: "/sandbox",   label: "Sandbox" },
+  { href: "/sandbox",   label: "Financial Canvas" },
   { href: "/optimizer", label: "Optimizer" },
 ];
 
@@ -17,7 +17,7 @@ export default function Navbar() {
         {/* Brand */}
         <Link href="/" className="flex items-center gap-2">
           <span className="text-blue-600 font-extrabold text-xl tracking-tight">
-            LaunchPad AI
+            Compass AI
           </span>
         </Link>
 
