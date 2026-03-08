@@ -48,7 +48,7 @@ export default function GroupNode({ id, data }: NodeProps<GroupNodeData>) {
 
   return (
     <div
-      className="w-full h-full rounded-lg border border-slate-800 bg-slate-900/95 backdrop-blur-sm overflow-hidden"
+      className="w-full h-full rounded-lg border border-slate-700 bg-slate-900 overflow-hidden"
       style={{ minHeight: GROUP_HEADER_H }}
     >
       {/* Group-level port handles — one per side, representing the aggregate total */}

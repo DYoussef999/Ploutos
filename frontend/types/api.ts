@@ -62,6 +62,13 @@ export type SyncStatus = 'idle' | 'syncing' | 'synced' | 'error';
 
 // ── New Gemini intelligence layer types ───────────────────────────────────────
 
+export interface SegmentMargin {
+  segment_name: string;
+  revenue: number;
+  expenses: number;
+  margin_pct: number;
+}
+
 /** Response from POST /sync (Gemini Accountant Agent) */
 export interface FinancialHealthReport {
   net_profit: number;
@@ -74,6 +81,7 @@ export interface FinancialHealthReport {
   monthly_expenses: number;
   max_affordable_rent: number;
   recommendation: string;
+  segment_margins?: SegmentMargin[];
 }
 
 /** Response from GET /macro (BoC + FRED, cached 6hr) */

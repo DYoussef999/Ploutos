@@ -202,6 +202,32 @@ export default function InsightsTab({ analysis, geminiReport, macro, syncStatus 
         </div>
       )}
 
+      {/* Segment Margins */}
+      {geminiReport?.segment_margins && geminiReport.segment_margins.length > 0 && (
+        <div className="border border-zinc-800 rounded-lg p-3">
+          <div className="flex items-center gap-2 mb-2">
+            <BarChart2 className="w-3.5 h-3.5 text-purple-400" />
+            <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Segment Margins</span>
+          </div>
+          <div className="space-y-2">
+            {geminiReport.segment_margins.map((seg) => (
+              <div key={seg.segment_name} className="flex flex-col gap-1 py-1.5 border-b border-zinc-800/60 last:border-0">
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-zinc-400">{seg.segment_name}</span>
+                  <span className={`text-xs font-bold tabular-nums ${seg.margin_pct >= 20 ? 'text-emerald-400' : seg.margin_pct >= 10 ? 'text-amber-400' : 'text-rose-400'}`}>
+                    {fmtPct(seg.margin_pct)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center opacity-70">
+                  <span className="text-[10px] text-zinc-500">Rev: {fmtCAD(seg.revenue)}</span>
+                  <span className="text-[10px] text-zinc-500">Exp: {fmtCAD(seg.expenses)}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Macro trends */}
       {macro && <MacroTicker macro={macro} />}
 

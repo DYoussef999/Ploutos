@@ -105,7 +105,26 @@ function loadCanvas(): { nodes: Node<AnyNodeData>[]; edges: Edge[] } {
     const saved = localStorage.getItem(CANVAS_STORAGE_KEY);
     if (saved) {
       const parsed = JSON.parse(saved);
-      if (parsed.nodes?.length) return { nodes: parsed.nodes, edges: parsed.edges ?? [] };
+      if (parsed.nodes?.length) {
+        const raw = parsed.nodes as Node<AnyNodeData>[];
+        const existingIds = new Set<string>(raw.map((n) => n.id));
+
+        // Strip parentNode refs to groups that no longer exist — prevents the
+        // "Parent node X not found" React Flow crash on stale localStorage.
+        const sanitized = raw.map((n) => {
+          if (n.parentNode && !existingIds.has(n.parentNode)) {
+            return {
+              ...n,
+              parentNode: undefined,
+              extent: undefined,
+              data: { ...n.data, groupId: undefined },
+            } as Node<AnyNodeData>;
+          }
+          return n;
+        });
+
+        return { nodes: sanitized, edges: parsed.edges ?? [] };
+      }
     }
   } catch { /* ignore corrupt storage */ }
 
@@ -150,6 +169,34 @@ export default function FinancialSandbox() {
   useEffect(() => {
     if (sessionError) setSyncStatus('error');
   }, [sessionError]);
+
+  // ── Auto-remove empty groups + heal orphaned children ─────────────────────
+  useEffect(() => {
+    const allIds    = new Set(nodes.map((n) => n.id));
+    const groupIds  = new Set(nodes.filter((n) => n.type === 'group').map((n) => n.id));
+    const occupied  = new Set(
+      nodes.filter((n) => n.parentNode && groupIds.has(n.parentNode)).map((n) => n.parentNode!)
+    );
+    const emptyIds  = Array.from(groupIds).filter((id) => !occupied.has(id));
+    const hasOrphans = nodes.some((n) => n.parentNode && !allIds.has(n.parentNode));
+
+    if (emptyIds.length === 0 && !hasOrphans) return;
+
+    setNodes((nds) => {
+      const currentIds = new Set(nds.map((n) => n.id));
+      return nds
+        .filter((n) => !emptyIds.includes(n.id))
+        .map((n) => {
+          if (n.parentNode && !currentIds.has(n.parentNode)) {
+            // Orphaned child — clear parent ref so React Flow doesn't crash
+            return { ...n, parentNode: undefined, extent: undefined,
+              data: { ...n.data, groupId: undefined } } as Node<AnyNodeData>;
+          }
+          return n;
+        });
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nodes]);
 
   // ── Debounced AI canvas sync ───────────────────────────────────────────────
   useEffect(() => {
@@ -272,6 +319,8 @@ export default function FinancialSandbox() {
   // ── Drag-stop: Re-entry, Containment, and Overlap Settlement ───────────────
   const onNodeDragStop: NodeDragHandler = useCallback(
     (_, node) => {
+      if (!node) return; // Add null check to prevent crash
+
       // 1. Group-to-Group overlap settlement
       if (node.type === 'group') {
         setNodes((nds) => settleGroupOverlaps(node.id, nds));
@@ -302,7 +351,7 @@ export default function FinancialSandbox() {
                 ...n,
                 parentNode: targetGroup.id,
                 position: childRelativePos(siblings.length),
-                data: { ...n.data, isolated: false, groupId: targetGroup.id },
+                data: { ...n.data, isolated: false, groupId: targetGroup.id, manualGroup: true },
               };
             });
             return rePackGroup(targetGroup.id, updated);
@@ -338,7 +387,7 @@ export default function FinancialSandbox() {
             return {
               ...rest,
               position: { x: absX, y: absY },
-              data: { ...n.data, isolated: true, groupId: undefined },
+              data: { ...n.data, isolated: true, groupId: undefined, manualGroup: true },
             } as Node<AnyNodeData>;
           });
           return recalcGroupLayout(updated);
@@ -366,7 +415,7 @@ export default function FinancialSandbox() {
   );
 
   return (
-    <div className="flex h-full bg-slate-950">
+    <div className="flex h-full bg-slate-950 relative">
       <Sidebar onImportClick={() => setShowImport(true)} />
 
       <div className="flex-1 h-full" onDrop={onDrop} onDragOver={onDragOver}>

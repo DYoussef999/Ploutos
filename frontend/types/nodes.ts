@@ -9,8 +9,8 @@ export interface SourceNodeData {
   label: string;
   value: number;
   groupId?: string;
-  /** true when user has dragged this node out of its group for What-If analysis */
   isolated?: boolean;
+  manualGroup?: boolean;
 }
 
 export interface ExpenseNodeData {
@@ -20,6 +20,7 @@ export interface ExpenseNodeData {
   isDelta?: boolean;
   groupId?: string;
   isolated?: boolean;
+  manualGroup?: boolean;
 }
 
 export interface GroupNodeData {

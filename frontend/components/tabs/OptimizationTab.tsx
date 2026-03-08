@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Zap, MapPin, AlertTriangle, ChevronUp, ChevronDown, Map, Shield, TrendingUp } from 'lucide-react';
 import { optimizeLocations, type CandidateLocation } from '@/services/compassApi';
-import type { FinancialHealthReport, GeminiExpansionReport, RankedLocation } from '@/types/api';
+import type { FinancialHealthReport, GeminiExpansionReport, RankedLocation, SyncStatus } from '@/types/api';
 
 const fmtCAD = (v: number) =>
   new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(v);
