@@ -1,11 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useUser } from "@auth0/nextjs-auth0/client";
+import { useRouter } from "next/navigation";
 import MetricCard from "@/components/MetricCard";
 import ChartComponent from "@/components/ChartComponent";
 import LocationCard from "@/components/LocationCard";
 import { getDashboardMetrics, recommendLocations } from "@/services/api";
 
-// Profit forecast using a simple month-over-month growth assumption
 function buildForecast(baseProfit) {
   return Array.from({ length: 6 }, (_, i) => ({
     name: `Month ${i + 1}`,
@@ -14,12 +15,21 @@ function buildForecast(baseProfit) {
 }
 
 export default function DashboardPage() {
+  const { user, isLoading: authLoading } = useUser();
+  const router = useRouter();
   const [metrics, setMetrics] = useState(null);
   const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState(null);
 
   useEffect(() => {
+    if (!authLoading && !user) {
+      router.replace('/auth');
+    }
+  }, [user, authLoading, router]);
+
+  useEffect(() => {
+    if (authLoading || !user) return;
     async function fetchData() {
       try {
         const [m, l] = await Promise.all([
@@ -40,7 +50,11 @@ export default function DashboardPage() {
       }
     }
     fetchData();
-  }, []);
+  }, [authLoading, user]);
+
+  if (authLoading || !user) {
+    return <p className="text-gray-500 text-center mt-20">Loading...</p>;
+  }
 
   if (loading)
     return <p className="text-gray-500 text-center mt-20">Loading dashboard…</p>;
@@ -62,7 +76,6 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      {/* Page header */}
       <div>
         <h1 className="text-2xl font-extrabold text-gray-900">Dashboard</h1>
         <p className="text-gray-500 text-sm mt-1">
@@ -70,7 +83,6 @@ export default function DashboardPage() {
         </p>
       </div>
 
-      {/* Metric cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <MetricCard title="Predicted Revenue"    value={metrics.predicted_revenue}     prefix="$" color="blue"   />
         <MetricCard title="Predicted Profit"     value={metrics.predicted_profit}      prefix="$" color="green"  />
@@ -78,13 +90,11 @@ export default function DashboardPage() {
         <MetricCard title="Recommended Locations" value={metrics.recommended_locations} color="orange" />
       </div>
 
-      {/* Charts row */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <ChartComponent data={revenueCostData} bar1Key="value" title="Revenue vs Costs vs Profit" />
         <ChartComponent data={forecastData}    bar1Key="Profit" title="6-Month Profit Forecast" />
       </div>
 
-      {/* Top locations preview */}
       <div>
         <h2 className="text-lg font-bold text-gray-900 mb-3">Top Recommended Locations</h2>
         <div className="space-y-3">

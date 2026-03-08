@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
+import { useUser } from '@auth0/nextjs-auth0/client';
 
 const navLinks = [
   { label: 'Dashboard', href: '/' },
@@ -13,6 +14,7 @@ const navLinks = [
 export default function Navbar() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { user, isLoading } = useUser();
 
   function isActive(href) {
     if (href === '/') return pathname === '/';
@@ -60,6 +62,40 @@ export default function Navbar() {
             ))}
           </div>
 
+          {/* Auth buttons (desktop) */}
+          {!isLoading && (
+            <div className="hidden md:flex items-center gap-3 ml-4">
+              {user ? (
+                <>
+                  <span className="text-green-400 text-sm font-medium truncate max-w-[140px]">
+                    {user.name || user.email}
+                  </span>
+                  <a
+                    href="/api/auth/logout"
+                    className="text-sm text-slate-300 border border-slate-600 px-4 py-1.5 rounded-lg hover:border-green-400 hover:text-white transition"
+                  >
+                    Sign out
+                  </a>
+                </>
+              ) : (
+                <>
+                  <a
+                    href="/api/auth/login?returnTo=/dashboard"
+                    className="text-sm text-slate-300 border border-slate-600 px-4 py-1.5 rounded-lg hover:border-green-400 hover:text-white transition"
+                  >
+                    Sign in
+                  </a>
+                  <a
+                    href="/api/auth/login?screen_hint=signup&returnTo=/dashboard"
+                    className="text-sm font-semibold bg-white text-slate-900 px-4 py-1.5 rounded-lg hover:bg-slate-100 transition shadow-sm"
+                  >
+                    Get started &rarr;
+                  </a>
+                </>
+              )}
+            </div>
+          )}
+
           {/* Hamburger button */}
           <button
             onClick={() => setMobileOpen((prev) => !prev)}
@@ -96,6 +132,27 @@ export default function Navbar() {
               {link.label}
             </Link>
           ))}
+          {!isLoading && (
+            <div className="pt-3 mt-2 border-t border-slate-700/50 flex flex-col gap-2">
+              {user ? (
+                <>
+                  <span className="text-green-400 text-sm font-medium px-3 truncate">{user.name || user.email}</span>
+                  <a href="/api/auth/logout" className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/60 transition-colors">
+                    Sign out
+                  </a>
+                </>
+              ) : (
+                <>
+                  <a href="/api/auth/login?returnTo=/dashboard" className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/60 transition-colors">
+                    Sign in
+                  </a>
+                  <a href="/api/auth/login?screen_hint=signup&returnTo=/dashboard" className="block px-3 py-2 rounded-lg text-sm font-semibold bg-white text-slate-900 text-center transition">
+                    Get started &rarr;
+                  </a>
+                </>
+              )}
+            </div>
+          )}
         </div>
       )}
     </nav>
