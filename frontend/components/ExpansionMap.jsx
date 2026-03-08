@@ -4,32 +4,128 @@ import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
-// ── Opportunity Locations ─────────────────────────────────────────────────────
-// Each location has its own hourly foot traffic so the heatmap follows them.
+// ── Fallback listings (used only while backend loads or if it's unreachable) ─
+// Once the backend responds, these are replaced with geocoded coordinates.
 const DEFAULT_RECOMMENDATIONS = [
   {
-    id: 1, name: 'Uptown Waterloo', latitude: 43.4668, longitude: -80.5224,
-    opportunity_score: 87, estimated_rent: 3200, projected_profit_margin: 0.24,
-    address: '99 Regina St N, Waterloo, ON',
+    id: 1, name: 'Uptown Waterloo', address: '144 King St N, Waterloo, ON',
+    latitude: 43.470999, longitude: -80.523882,
+    opportunity_score: 85, estimated_rent: 4200, square_footage: 850, projected_profit_margin: 0.22,
     hourly: [5,5,5,5,5,5,10,20,35,45,55,65,70,65,60,65,70,80,90,85,75,60,40,15],
   },
   {
-    id: 2, name: 'Downtown Kitchener', latitude: 43.4516, longitude: -80.4925,
-    opportunity_score: 72, estimated_rent: 2750, projected_profit_margin: 0.19,
-    address: '305 King St W, Kitchener, ON',
-    hourly: [5,5,5,5,5,10,20,45,70,75,70,65,60,65,70,65,60,55,50,45,35,25,15,8],
+    id: 2, name: 'Uptown Waterloo', address: '187 King St N, Waterloo, ON',
+    latitude: 43.472932, longitude: -80.524608,
+    opportunity_score: 80, estimated_rent: 5800, square_footage: 1200, projected_profit_margin: 0.18,
+    hourly: [5,5,5,5,5,5,10,20,35,45,55,65,70,65,60,65,70,80,90,85,75,60,40,15],
   },
   {
-    id: 3, name: 'University Ave Plaza', latitude: 43.4723, longitude: -80.5449,
-    opportunity_score: 91, estimated_rent: 3800, projected_profit_margin: 0.28,
-    address: '550 University Ave W, Waterloo, ON',
-    hourly: [10,8,15,5,10,30,65,80,75,70,60,55,50,60,70,65,55,50,45,40,35,30,20,10],
+    id: 3, name: 'Uptown Waterloo', address: '22 Erb St W, Waterloo, ON',
+    latitude: 43.464355, longitude: -80.525261,
+    opportunity_score: 76, estimated_rent: 6500, square_footage: 1450, projected_profit_margin: 0.14,
+    hourly: [5,5,5,5,5,5,10,20,35,45,55,65,70,65,60,65,70,80,90,85,75,60,40,15],
   },
   {
-    id: 4, name: 'Laurelwood District', latitude: 43.4455, longitude: -80.5612,
-    opportunity_score: 45, estimated_rent: 2100, projected_profit_margin: 0.14,
-    address: '450 Erb St W, Waterloo, ON',
-    hourly: [2,2,2,2,2,5,10,20,30,40,50,55,60,55,50,45,40,35,30,20,15,10,5,2],
+    id: 4, name: 'Uptown Waterloo', address: '75 King St S, Waterloo, ON',
+    latitude: 43.463424, longitude: -80.523406,
+    opportunity_score: 83, estimated_rent: 3900, square_footage: 780, projected_profit_margin: 0.24,
+    hourly: [5,5,5,5,5,5,10,20,35,45,55,65,70,65,60,65,70,80,90,85,75,60,40,15],
+  },
+  {
+    id: 5, name: 'Uptown Waterloo', address: '51 Erb St E, Waterloo, ON',
+    latitude: 43.465630, longitude: -80.519046,
+    opportunity_score: 81, estimated_rent: 4750, square_footage: 950, projected_profit_margin: 0.20,
+    hourly: [5,5,5,5,5,5,10,20,35,45,55,65,70,65,60,65,70,80,90,85,75,60,40,15],
+  },
+  {
+    id: 6, name: 'Near WLU', address: '314 King St N, Waterloo, ON',
+    latitude: 43.478965, longitude: -80.525533,
+    opportunity_score: 78, estimated_rent: 2800, square_footage: 620, projected_profit_margin: 0.27,
+    hourly: [5,5,5,5,5,5,10,30,70,85,80,75,60,55,75,80,70,50,40,30,20,15,10,5],
+  },
+  {
+    id: 7, name: 'Near WLU', address: '270 King St N, Waterloo, ON',
+    latitude: 43.477325, longitude: -80.525189,
+    opportunity_score: 75, estimated_rent: 3200, square_footage: 700, projected_profit_margin: 0.25,
+    hourly: [5,5,5,5,5,5,10,30,70,85,80,75,60,55,75,80,70,50,40,30,20,15,10,5],
+  },
+  {
+    id: 8, name: 'Near WLU', address: '232 King St N, Waterloo, ON',
+    latitude: 43.475377, longitude: -80.524337,
+    opportunity_score: 73, estimated_rent: 3550, square_footage: 760, projected_profit_margin: 0.23,
+    hourly: [5,5,5,5,5,5,10,30,70,85,80,75,60,55,75,80,70,50,40,30,20,15,10,5],
+  },
+  {
+    id: 9, name: 'University Corridor', address: '180 University Ave W, Waterloo, ON',
+    latitude: 43.472000, longitude: -80.536385,
+    opportunity_score: 72, estimated_rent: 2950, square_footage: 640, projected_profit_margin: 0.26,
+    hourly: [5,5,5,5,5,5,10,25,65,80,75,70,55,50,70,75,65,45,35,25,15,10,8,5],
+  },
+  {
+    id: 10, name: 'University Corridor', address: '152 University Ave W, Waterloo, ON',
+    latitude: 43.472136, longitude: -80.536021,
+    opportunity_score: 74, estimated_rent: 2600, square_footage: 580, projected_profit_margin: 0.28,
+    hourly: [5,5,5,5,5,5,10,25,65,80,75,70,55,50,70,75,65,45,35,25,15,10,8,5],
+  },
+  {
+    id: 11, name: 'Bridgeport', address: '89 Bridgeport Rd E, Waterloo, ON',
+    latitude: 43.469492, longitude: -80.513335,
+    opportunity_score: 55, estimated_rent: 2200, square_footage: 520, projected_profit_margin: 0.22,
+    hourly: [3,3,3,3,3,5,10,20,40,55,60,65,60,55,50,45,40,35,30,20,12,8,5,3],
+  },
+  {
+    id: 12, name: 'Bridgeport', address: '135 Bridgeport Rd E, Waterloo, ON',
+    latitude: 43.470850, longitude: -80.510221,
+    opportunity_score: 53, estimated_rent: 2450, square_footage: 560, projected_profit_margin: 0.21,
+    hourly: [3,3,3,3,3,5,10,20,40,55,60,65,60,55,50,45,40,35,30,20,12,8,5,3],
+  },
+  {
+    id: 13, name: 'North King', address: '410 King St N, Waterloo, ON',
+    latitude: 43.484759, longitude: -80.526322,
+    opportunity_score: 60, estimated_rent: 3100, square_footage: 680, projected_profit_margin: 0.23,
+    hourly: [3,3,3,3,3,5,10,20,35,50,60,65,65,60,55,50,45,40,35,25,15,10,5,3],
+  },
+  {
+    id: 14, name: 'North King', address: '450 King St N, Waterloo, ON',
+    latitude: 43.487645, longitude: -80.526294,
+    opportunity_score: 58, estimated_rent: 3350, square_footage: 720, projected_profit_margin: 0.22,
+    hourly: [3,3,3,3,3,5,10,20,35,50,60,65,65,60,55,50,45,40,35,25,15,10,5,3],
+  },
+  {
+    id: 15, name: 'Near WLU', address: '18 William St W, Waterloo, ON',
+    latitude: 43.460154, longitude: -80.523023,
+    opportunity_score: 76, estimated_rent: 2750, square_footage: 600, projected_profit_margin: 0.27,
+    hourly: [5,5,5,5,5,5,10,30,70,85,80,75,60,55,75,80,70,50,40,30,20,15,10,5],
+  },
+  {
+    id: 16, name: 'Uptown Fringe', address: '44 Noecker St, Waterloo, ON',
+    latitude: 43.471834, longitude: -80.521150,
+    opportunity_score: 50, estimated_rent: 2100, square_footage: 490, projected_profit_margin: 0.23,
+    hourly: [3,3,3,3,3,5,8,15,30,40,50,55,60,55,50,45,40,38,42,40,30,20,12,5],
+  },
+  {
+    id: 17, name: 'Uptown Fringe', address: '11 Willow St W, Waterloo, ON',
+    latitude: 43.465161, longitude: -80.518066,
+    opportunity_score: 48, estimated_rent: 1950, square_footage: 460, projected_profit_margin: 0.24,
+    hourly: [3,3,3,3,3,5,8,15,30,40,50,55,60,55,50,45,40,38,42,40,30,20,12,5],
+  },
+  {
+    id: 18, name: 'University Corridor', address: '320 Albert St, Waterloo, ON',
+    latitude: 43.477864, longitude: -80.534700,
+    opportunity_score: 70, estimated_rent: 2850, square_footage: 630, projected_profit_margin: 0.26,
+    hourly: [5,5,5,5,5,5,10,25,65,80,75,70,55,50,70,75,65,45,35,25,15,10,8,5],
+  },
+  {
+    id: 19, name: 'Uptown Fringe', address: '88 Regina St N, Waterloo, ON',
+    latitude: 43.469637, longitude: -80.522330,
+    opportunity_score: 52, estimated_rent: 2300, square_footage: 510, projected_profit_margin: 0.22,
+    hourly: [3,3,3,3,3,5,8,15,30,40,50,55,60,55,50,45,40,38,42,40,30,20,12,5],
+  },
+  {
+    id: 20, name: 'North King', address: '500 King St N, Waterloo, ON',
+    latitude: 43.491352, longitude: -80.526462,
+    opportunity_score: 62, estimated_rent: 3600, square_footage: 800, projected_profit_margin: 0.21,
+    hourly: [3,3,3,3,3,5,10,20,35,50,60,65,65,60,55,50,45,40,35,25,15,10,5,3],
   },
 ];
 
@@ -38,9 +134,9 @@ const BUILDING_SIZE = 0.00022; // fallback square ~20m
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function getScoreColor(score) {
-  if (score >= 75) return '#4ade80';   // muted green
-  if (score >= 50) return '#fbbf24';   // muted amber
-  return '#f87171';                    // muted red
+  if (score >= 75) return '#4ade80';
+  if (score >= 50) return '#fbbf24';
+  return '#f87171';
 }
 
 function getScoreBg(score) {
@@ -56,11 +152,11 @@ function getScoreLabel(score) {
 }
 
 function getFootColor(busyness) {
-  if (busyness >= 80) return '#86efac';  // soft green
-  if (busyness >= 60) return '#6ee7b7';  // soft teal-green
-  if (busyness >= 40) return '#5eead4';  // teal
-  if (busyness >= 20) return '#67e8f9';  // cyan
-  return '#7dd3fc';                      // soft blue
+  if (busyness >= 80) return '#86efac';
+  if (busyness >= 60) return '#6ee7b7';
+  if (busyness >= 40) return '#5eead4';
+  if (busyness >= 20) return '#67e8f9';
+  return '#7dd3fc';
 }
 
 function getTrafficLabel(busyness) {
@@ -71,7 +167,6 @@ function getTrafficLabel(busyness) {
   return 'Very Quiet';
 }
 
-// Fallback square if queryRenderedFeatures finds no building at the coordinate
 function buildingSquare(lng, lat, size = BUILDING_SIZE) {
   return [
     [lng - size, lat - size],
@@ -86,9 +181,6 @@ function emptyGeoJSON() {
   return { type: 'FeatureCollection', features: [] };
 }
 
-// Expand every ring of a polygon outward from its centroid by `amount` degrees.
-// This makes the green extrusion sit just outside the grey building so they don't
-// directly overlap and the outline is clearly visible.
 function bufferPolygon(geometry, amount = 0.000015) {
   const expandRing = (ring) => {
     const cx = ring.reduce((s, c) => s + c[0], 0) / ring.length;
@@ -110,8 +202,6 @@ function bufferPolygon(geometry, amount = 0.000015) {
   return geometry;
 }
 
-// Build GeoJSON from a real OSM building feature, buffered outward so the green
-// extrusion sits just outside the grey building footprint
 function buildFromRealFeature(feature, height) {
   return {
     type: 'FeatureCollection',
@@ -123,7 +213,6 @@ function buildFromRealFeature(feature, height) {
   };
 }
 
-// Fallback: use a small square at the coordinate
 function buildFallbackGeoJSON(rec) {
   if (!rec) return emptyGeoJSON();
   return {
@@ -136,7 +225,6 @@ function buildFallbackGeoJSON(rec) {
   };
 }
 
-// GeoJSON for foot traffic heatmap — only uses the opportunity locations
 function buildHeatGeoJSON(recs, hour) {
   return {
     type: 'FeatureCollection',
@@ -193,15 +281,104 @@ export default function ExpansionMap() {
   const [isPlaying, setIsPlaying] = useState(false);
   const playRef = useRef(null);
 
+  // Stores building-centroid coords keyed by listing id.
+  // Heatmap + popups use these so everything sits on the mesh, not the road.
+  const snappedCoordsRef = useRef({});
+
   const [businessType, setBusinessType] = useState('');
   const [location, setLocation] = useState('');
   const [budget, setBudget] = useState('');
+  const [squareFootage, setSquareFootage] = useState('');
   const [autoFilled, setAutoFilled] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState('');
   const [showSearch, setShowSearch] = useState(true);
 
   const selectedRec = recommendations.find((r) => r.id === selectedId) || null;
+
+  // ── Helper: find nearest building centroid for a listing ────────────────────
+  function findBuildingCenter(map, lng, lat) {
+    const point = map.project([lng, lat]);
+    for (const radius of [30, 50, 75, 100]) {
+      const bbox = [
+        [point.x - radius, point.y - radius],
+        [point.x + radius, point.y + radius],
+      ];
+      const buildings = map.queryRenderedFeatures(bbox, { layers: ['3d-buildings'] });
+      if (buildings.length > 0) {
+        const closest = buildings.reduce((best, f) => {
+          if (!f.geometry) return best;
+          const coords = f.geometry.type === 'Polygon'
+            ? f.geometry.coordinates[0]
+            : f.geometry.coordinates[0][0];
+          const cx = coords.reduce((s, c) => s + c[0], 0) / coords.length;
+          const cy = coords.reduce((s, c) => s + c[1], 0) / coords.length;
+          const dist = Math.hypot(cx - lng, cy - lat);
+          return !best || dist < best.dist ? { f, dist, cx, cy } : best;
+        }, null);
+        return { lng: closest.cx, lat: closest.cy, feature: closest.f };
+      }
+    }
+    return null;
+  }
+
+  // ── Helper: build heatmap GeoJSON using snapped coords when available ──────
+  function buildSnappedHeatGeoJSON(recs, hour) {
+    const snapped = snappedCoordsRef.current;
+    return {
+      type: 'FeatureCollection',
+      features: recs.map((rec) => {
+        const s = snapped[rec.id];
+        return {
+          type: 'Feature',
+          properties: { intensity: rec.hourly[hour] / 100 },
+          geometry: {
+            type: 'Point',
+            coordinates: s ? [s.lng, s.lat] : [rec.longitude, rec.latitude],
+          },
+        };
+      }),
+    };
+  }
+
+  // ── Snap all listings to building centroids once tiles are loaded ──────────
+  function snapAllListings(map, recs) {
+    const snapped = {};
+    let count = 0;
+    for (const rec of recs) {
+      const result = findBuildingCenter(map, rec.longitude, rec.latitude);
+      if (result) {
+        snapped[rec.id] = { lng: result.lng, lat: result.lat };
+        count++;
+      }
+    }
+    snappedCoordsRef.current = snapped;
+    console.log(`📍 Snapped ${count}/${recs.length} listings to building centroids`);
+    // Rebuild heatmap with snapped coords
+    const src = map.getSource('foot-heat');
+    if (src) src.setData(buildSnappedHeatGeoJSON(recs, currentHour));
+  }
+
+  // ── Fetch geocoded listings from backend on mount ─────────────────────────
+  useEffect(() => {
+    const API = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+    fetch(`${API}/api/locations/all`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.status === 'ok' && data.locations?.length) {
+          setRecommendations(data.locations);
+          console.log('✅ Loaded geocoded listings from backend');
+          // Re-snap to buildings with the new coords and update heatmap
+          const map = mapRef.current;
+          if (map && map.isStyleLoaded()) {
+            map.once('idle', () => snapAllListings(map, data.locations));
+          }
+        }
+      })
+      .catch((err) => {
+        console.warn('Backend not reachable, using hardcoded defaults:', err.message);
+      });
+  }, []);
 
   // ── Init Map ──────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -212,8 +389,8 @@ export default function ExpansionMap() {
     const map = new mapboxgl.Map({
       container: mapContainerRef.current,
       style: 'mapbox://styles/mapbox/dark-v11',
-      center: [-80.5004, 43.4600],
-      zoom: 12,
+      center: [-80.5230, 43.4730],
+      zoom: 13,
       pitch: 30,
       bearing: -10,
       antialias: true,
@@ -241,10 +418,10 @@ export default function ExpansionMap() {
         },
       }, labelLayerId);
 
-      // Foot traffic heatmap — tied to opportunity locations, stays visible at all zooms
+      // Foot traffic heatmap — starts empty, populated after building snap
       map.addSource('foot-heat', {
         type: 'geojson',
-        data: buildHeatGeoJSON(DEFAULT_RECOMMENDATIONS, new Date().getHours()),
+        data: emptyGeoJSON(),
       });
       map.addLayer({
         id: 'foot-heat-layer',
@@ -252,24 +429,30 @@ export default function ExpansionMap() {
         source: 'foot-heat',
         maxzoom: 22,
         paint: {
-          'heatmap-weight': ['interpolate', ['linear'], ['get', 'intensity'], 0, 0, 1, 1],
-          'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 10, 1, 17, 2],
-          // Radius grows as you zoom in so it stays visible at street level
-          'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 10, 20, 13, 40, 15, 25, 17, 18, 19, 14],
-          'heatmap-opacity': ['interpolate', ['linear'], ['zoom'], 10, 0.55, 15, 0.7, 19, 0.8],
+          'heatmap-weight': ['interpolate', ['linear'], ['get', 'intensity'], 0, 0, 1, 1.2],
+          'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 10, 0.8, 14, 1.2, 17, 1.8],
+          // Tight radius so each listing is a distinct circle, not a merged blob
+          'heatmap-radius': ['interpolate', ['linear'], ['zoom'],
+            10, 6,    // zoomed out — tiny dots
+            13, 12,   // city level — small circles
+            15, 18,   // neighbourhood — clear circles
+            17, 25,   // street level — visible on building
+            19, 30,   // close up — sits on the building
+          ],
+          'heatmap-opacity': ['interpolate', ['linear'], ['zoom'], 10, 0.6, 15, 0.75, 19, 0.85],
           'heatmap-color': [
             'interpolate', ['linear'], ['heatmap-density'],
-            0,   'rgba(14,116,144,0)',
-            0.2, '#164e63',
-            0.4, '#0e7490',
-            0.6, '#0d9488',
-            0.8, '#059669',
-            1.0, '#16a34a',
+            0,    'rgba(14,116,144,0)',
+            0.15, '#164e63',
+            0.35, '#0e7490',
+            0.55, '#0d9488',
+            0.75, '#059669',
+            1.0,  '#16a34a',
           ],
         },
       });
 
-      // Selected building — starts empty, filled when user clicks a card
+      // Selected building
       map.addSource('selected-building', {
         type: 'geojson',
         data: emptyGeoJSON(),
@@ -279,13 +462,12 @@ export default function ExpansionMap() {
         type: 'fill-extrusion',
         source: 'selected-building',
         paint: {
-          'fill-extrusion-color': '#2d6a4f',   // muted forest green
+          'fill-extrusion-color': '#2d6a4f',
           'fill-extrusion-height': ['get', 'height'],
           'fill-extrusion-base': 0,
           'fill-extrusion-opacity': 0.75,
         },
       });
-      // Soft green outline — traces the real building edge
       map.addLayer({
         id: 'selected-outline',
         type: 'line',
@@ -295,6 +477,12 @@ export default function ExpansionMap() {
           'line-width': 2,
           'line-opacity': 0.7,
         },
+      });
+
+      // Once tiles are loaded, snap all listings to building centroids
+      // so the heatmap and popups sit on the meshes, not the road
+      map.once('idle', () => {
+        snapAllListings(map, DEFAULT_RECOMMENDATIONS);
       });
     });
 
@@ -312,7 +500,6 @@ export default function ExpansionMap() {
     const src = map.getSource('selected-building');
     if (!src) return;
 
-    // Always kill any in-flight moveend listener and popup first
     if (moveEndRef.current) {
       map.off('moveend', moveEndRef.current);
       moveEndRef.current = null;
@@ -324,9 +511,13 @@ export default function ExpansionMap() {
       return;
     }
 
-    // Fly in first — building tiles need to be rendered before we can query them
+    // Use snapped (building centroid) coords if available, otherwise raw geocoded
+    const snapped = snappedCoordsRef.current[selectedRec.id];
+    const flyLng = snapped ? snapped.lng : selectedRec.longitude;
+    const flyLat = snapped ? snapped.lat : selectedRec.latitude;
+
     map.flyTo({
-      center: [selectedRec.longitude, selectedRec.latitude],
+      center: [flyLng, flyLat],
       zoom: 17,
       pitch: 58,
       bearing: -18,
@@ -334,46 +525,38 @@ export default function ExpansionMap() {
       essential: true,
     });
 
-    // Capture selectedRec in closure so stale calls don't bleed across switches
     const recSnapshot = selectedRec;
 
     const onMoveEnd = () => {
-      // Guard: if user already switched to another card, bail out
       if (moveEndRef.current !== onMoveEnd) return;
       moveEndRef.current = null;
 
-      const point = map.project([recSnapshot.longitude, recSnapshot.latitude]);
-      const bbox = [
-        [point.x - 20, point.y - 20],
-        [point.x + 20, point.y + 20],
-      ];
+      // Use the building finder helper
+      const result = findBuildingCenter(map, recSnapshot.longitude, recSnapshot.latitude);
 
-      const buildings = map.queryRenderedFeatures(bbox, { layers: ['3d-buildings'] });
-      const targetHeight = 15 + recSnapshot.opportunity_score * 0.5;
+      // Determine popup position — prefer building centroid
+      let popupLng = recSnapshot.longitude;
+      let popupLat = recSnapshot.latitude;
 
-      if (buildings.length > 0) {
-        const closest = buildings.reduce((best, f) => {
-          if (!f.geometry) return best;
-          const coords = f.geometry.type === 'Polygon'
-            ? f.geometry.coordinates[0]
-            : f.geometry.coordinates[0][0];
-          const cx = coords.reduce((s, c) => s + c[0], 0) / coords.length;
-          const cy = coords.reduce((s, c) => s + c[1], 0) / coords.length;
-          const dist = Math.hypot(cx - recSnapshot.longitude, cy - recSnapshot.latitude);
-          return !best || dist < best.dist ? { f, dist } : best;
-        }, null);
-        // Use actual OSM building height, boosted slightly so the green cap clears the roof
-        const osmHeight = (closest.f.properties?.height || closest.f.properties?.render_height || 12) * 1.4;
-        src.setData(buildFromRealFeature(closest.f, osmHeight));
+      if (result) {
+        const osmHeight = (result.feature.properties?.height || result.feature.properties?.render_height || 12) * 1.4;
+        src.setData(buildFromRealFeature(result.feature, osmHeight));
+        popupLng = result.lng;
+        popupLat = result.lat;
+
+        // Save to snap cache so heatmap stays in sync
+        snappedCoordsRef.current[recSnapshot.id] = { lng: result.lng, lat: result.lat };
+        // Refresh heatmap with this new snap
+        const heatSrc = map.getSource('foot-heat');
+        if (heatSrc) heatSrc.setData(buildSnappedHeatGeoJSON(recommendations, currentHour));
       } else {
         src.setData(buildFallbackGeoJSON(recSnapshot));
       }
 
-      // Show popup
       const busyness = recSnapshot.hourly[currentHour];
       if (popupRef.current) { popupRef.current.remove(); }
       popupRef.current = new mapboxgl.Popup({ offset: 30, className: 'expansion-popup', closeButton: true })
-        .setLngLat([recSnapshot.longitude, recSnapshot.latitude])
+        .setLngLat([popupLng, popupLat])
         .setHTML(`
           <div style="font-family:'Inter',sans-serif;padding:14px;min-width:230px;color:#f1f5f9;">
             <h3 style="margin:0 0 4px;font-size:15px;font-weight:700;">${recSnapshot.name}</h3>
@@ -381,6 +564,7 @@ export default function ExpansionMap() {
             <div style="display:flex;flex-direction:column;gap:5px;font-size:12px;">
               <div>🎯 <b>Score:</b> <span style="color:${getScoreColor(recSnapshot.opportunity_score)};font-weight:700;">${recSnapshot.opportunity_score}/100 · ${getScoreLabel(recSnapshot.opportunity_score)}</span></div>
               <div>🏠 <b>Est. Rent:</b> $${recSnapshot.estimated_rent.toLocaleString()}/mo</div>
+              <div>📐 <b>Size:</b> ${recSnapshot.square_footage.toLocaleString()} sq ft</div>
               <div>📈 <b>Projected Margin:</b> ${(recSnapshot.projected_profit_margin * 100).toFixed(1)}%</div>
               <div>🚶 <b>Traffic Now:</b> <span style="color:${getFootColor(busyness)}">${busyness}% · ${getTrafficLabel(busyness)}</span></div>
             </div>
@@ -398,8 +582,8 @@ export default function ExpansionMap() {
     const map = mapRef.current;
     if (!map || !map.isStyleLoaded()) return;
     const src = map.getSource('foot-heat');
-    if (src) src.setData(buildHeatGeoJSON(recommendations, currentHour));
-  }, [currentHour]);
+    if (src) src.setData(buildSnappedHeatGeoJSON(recommendations, currentHour));
+  }, [currentHour, recommendations]);
 
   // ── Toggle heatmap ────────────────────────────────────────────────────────
   useEffect(() => {
@@ -422,6 +606,7 @@ export default function ExpansionMap() {
     setBusinessType('Café / Coffee Shop');
     setLocation('Waterloo, ON');
     setBudget(4500);
+    setSquareFootage(800);
     setAutoFilled(true);
     setTimeout(() => setAutoFilled(false), 3000);
   };
@@ -441,6 +626,7 @@ export default function ExpansionMap() {
             business_type: businessType,
             location: location,
             budget: budget ? parseFloat(budget) : null,
+            square_footage: squareFootage ? parseFloat(squareFootage) : null,
           }),
         }
       );
@@ -448,13 +634,17 @@ export default function ExpansionMap() {
       if (data.status === 'ok' && data.locations?.length) {
         setRecommendations(data.locations);
         setSelectedId(null);
+        // Re-snap new results to building centroids
+        const map = mapRef.current;
+        if (map && map.isStyleLoaded()) {
+          map.once('idle', () => snapAllListings(map, data.locations));
+        }
       } else {
-        setSearchError('No locations found. Try adjusting your budget.');
+        setSearchError('No locations found. Try adjusting your filters.');
       }
     } catch (err) {
       console.error('Search failed:', err);
       setSearchError('Could not reach backend. Using demo data.');
-      // Fall back to default data so the map still works
       setRecommendations(DEFAULT_RECOMMENDATIONS);
     } finally {
       setIsSearching(false);
@@ -508,9 +698,17 @@ export default function ExpansionMap() {
                   placeholder="Max rent/mo"
                   className="w-full bg-slate-800 border border-slate-700 text-slate-200 placeholder-slate-500 rounded-lg pl-6 pr-2 py-2 text-xs focus:outline-none focus:border-green-500 transition" />
               </div>
+              <div className="relative flex-1">
+                <input type="number" value={squareFootage || ''} onChange={(e) => setSquareFootage(e.target.value)}
+                  placeholder="Sq ft needed"
+                  className="w-full bg-slate-800 border border-slate-700 text-slate-200 placeholder-slate-500 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-green-500 transition" />
+              </div>
+            </div>
+
+            <div className="mb-2 flex justify-end">
               <button onClick={handleAutoFill}
-                className="px-2 py-2 rounded-lg border border-blue-500/50 bg-blue-500/10 text-blue-400 text-xs hover:bg-blue-500/20 transition whitespace-nowrap">
-                ⚡ Auto
+                className="px-2 py-1.5 rounded-lg border border-blue-500/50 bg-blue-500/10 text-blue-400 text-xs hover:bg-blue-500/20 transition whitespace-nowrap">
+                ⚡ Auto-fill demo
               </button>
             </div>
             {autoFilled && <p className="text-xs text-blue-400 mb-1 animate-pulse">✓ Filled from Financial Sandbox</p>}
@@ -578,9 +776,12 @@ export default function ExpansionMap() {
                   </div>
 
                   {/* Row 3: stats */}
-                  <div style={{ display: 'flex', gap: 10, paddingLeft: 22 }}>
+                  <div style={{ display: 'flex', gap: 10, paddingLeft: 22, flexWrap: 'wrap' }}>
                     <div style={{ fontSize: 11, color: '#94a3b8' }}>
                       🏠 <span style={{ color: '#cbd5e1' }}>${rec.estimated_rent.toLocaleString()}/mo</span>
+                    </div>
+                    <div style={{ fontSize: 11, color: '#94a3b8' }}>
+                      📐 <span style={{ color: '#cbd5e1' }}>{rec.square_footage.toLocaleString()} ft²</span>
                     </div>
                     <div style={{ fontSize: 11, color: '#94a3b8' }}>
                       📈 <span style={{ color: '#cbd5e1' }}>{(rec.projected_profit_margin * 100).toFixed(0)}% margin</span>
