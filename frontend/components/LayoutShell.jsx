@@ -5,7 +5,7 @@ import Navbar from './Navbar';
 
 export default function LayoutShell({ children }) {
   const pathname = usePathname();
-  const isFullscreen = pathname === '/' || pathname === '/auth';
+  const isFullscreen = pathname === '/' || pathname === '/auth' || pathname === '/dashboard';
 
   if (isFullscreen) return <>{children}</>;
 

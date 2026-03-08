@@ -16,7 +16,7 @@ export default function RootLayout({ children }) {
           rel="stylesheet"
         />
       </head>
-      <body className="min-h-screen bg-gray-50">
+      <body className="min-h-screen" style={{ background: 'var(--cream)' }}>
         <UserProvider>
           <LayoutShell>{children}</LayoutShell>
         </UserProvider>
