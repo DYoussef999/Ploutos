@@ -202,7 +202,7 @@ export default function Home() {
               <span className="text-sm" style={{ color: 'var(--moss)' }}>
                 Analyzing <span className="font-semibold" style={{ color: 'var(--forest)' }}>${(statValue / 100).toFixed(1)}M+</span> in expansion opportunities
               </span>
-            </div>
+      </div>
 
             <h1
               className="text-5xl sm:text-6xl lg:text-7xl font-bold leading-[1.08] mb-6"
@@ -216,35 +216,35 @@ export default function Home() {
                   <path d="M2 8 C60 2, 120 2, 298 8" stroke="var(--sage)" strokeWidth="3" strokeLinecap="round" opacity="0.45" />
                 </svg>
               </span>
-            </h1>
+      </h1>
 
             <p className="text-lg lg:text-xl leading-relaxed mb-10 max-w-lg" style={{ color: 'var(--moss)' }}>
-              LaunchPad AI helps small businesses simulate expansion decisions, estimate
+        LaunchPad AI helps small businesses simulate expansion decisions, estimate
               revenue and costs, and find the best locations to grow — all powered by AI.
             </p>
 
             <div className="flex flex-wrap gap-4 mb-16">
-              <Link
-                href="/sandbox"
+        <Link
+          href="/sandbox"
                 className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-sm text-white transition-all duration-200 shadow-lg hover:shadow-xl hover:translate-y-[-1px]"
                 style={{ background: 'var(--forest)' }}
-              >
+        >
                 Get started free
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                 </svg>
-              </Link>
-              <Link
+        </Link>
+        <Link
                 href="/expansion"
                 className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-sm border transition-all duration-200 hover:bg-black/[0.03]"
                 style={{ borderColor: 'var(--forest-rim)', color: 'var(--forest)' }}
-              >
+        >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z" />
                 </svg>
                 Explore the map
-              </Link>
-            </div>
+        </Link>
+      </div>
 
             {/* Trust indicators */}
             <div className="flex items-center gap-6">
@@ -471,7 +471,7 @@ export default function Home() {
           <p className="text-sm" style={{ color: 'var(--moss)', opacity: 0.6 }}>
             &copy; {new Date().getFullYear()} LaunchPad AI. Built for Hack Canada.
           </p>
-        </div>
+      </div>
       </footer>
     </div>
   );

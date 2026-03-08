@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { useUser } from '@auth0/nextjs-auth0/client';
 
 const navLinks = [
-  { label: 'Dashboard', href: '/' },
+  { label: 'Dashboard', href: '/dashboard' },
   { label: 'Financial Sandbox', href: '/sandbox' },
   { label: 'Expansion Map', href: '/expansion' },
 ];
@@ -17,7 +17,7 @@ export default function Navbar() {
   const { user, isLoading } = useUser();
 
   function isActive(href) {
-    if (href === '/') return pathname === '/';
+    if (href === '/dashboard') return pathname === '/dashboard';
     return pathname.startsWith(href);
   }
 
@@ -26,7 +26,7 @@ export default function Navbar() {
       <div className="max-w-6xl mx-auto px-6">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 shrink-0">
+          <Link href="/dashboard" className="flex items-center gap-2 shrink-0">
             <svg
               className="w-6 h-6 text-green-400"
               fill="none"

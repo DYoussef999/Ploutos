@@ -102,7 +102,7 @@ export default function DashboardPage() {
             <LocationCard key={loc.name} location={loc} index={i + 1} />
           ))}
         </div>
-        <a href="/optimizer" className="mt-4 inline-block text-sm text-blue-600 hover:underline">
+        <a href="/expansion" className="mt-4 inline-block text-sm text-blue-600 hover:underline">
           See all recommendations →
         </a>
       </div>
