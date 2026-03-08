@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type MouseEvent as ReactMouseEvent } from 'react';
 import ReactFlow, {
   Background,
   BackgroundVariant,
@@ -150,6 +150,10 @@ export default function FinancialSandbox() {
   const [edges, setEdges, onEdgesChange] = useEdgesState(initial.edges);
   const [rfInstance, setRfInstance]      = useState<ReactFlowInstance | null>(null);
   const [showImport, setShowImport]      = useState(false);
+  const [sidebarWidth, setSidebarWidth]  = useState(288);
+  const isDragging   = useRef(false);
+  const dragStartX   = useRef(0);
+  const dragStartW   = useRef(0);
 
   // AI state
   const [aiAnalysis, setAiAnalysis]   = useState<AccountantAnalysis | null>(null);
@@ -414,6 +418,25 @@ export default function FinancialSandbox() {
     [setNodes, setEdges]
   );
 
+  const onResizeMouseDown = useCallback((e: ReactMouseEvent) => {
+    isDragging.current = true;
+    dragStartX.current = e.clientX;
+    dragStartW.current = sidebarWidth;
+
+    const onMove = (ev: MouseEvent) => {
+      if (!isDragging.current) return;
+      const delta = dragStartX.current - ev.clientX;
+      setSidebarWidth(Math.max(220, Math.min(520, dragStartW.current + delta)));
+    };
+    const onUp = () => {
+      isDragging.current = false;
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    };
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  }, [sidebarWidth]);
+
   return (
     <div className="flex h-full relative" style={{ background: '#e5e0d8' }}>
       <Sidebar onImportClick={() => setShowImport(true)} />
@@ -444,12 +467,27 @@ export default function FinancialSandbox() {
         </ReactFlow>
       </div>
 
+      {/* Resize handle */}
+      <div
+        onMouseDown={onResizeMouseDown}
+        className="group relative w-3 h-full shrink-0 cursor-col-resize flex items-center justify-center transition-colors hover:bg-[var(--sage)]/10"
+        style={{ background: 'var(--forest-rim)', borderLeft: '1px solid var(--forest-rim)', borderRight: '1px solid var(--forest-rim)' }}
+      >
+        {/* Grip dots */}
+        <div className="flex flex-col gap-[3px] opacity-40 group-hover:opacity-100 transition-opacity">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="w-[3px] h-[3px] rounded-full" style={{ background: 'var(--forest)' }} />
+          ))}
+        </div>
+      </div>
+
       <SummarySidebar
         financials={financials}
         sessionId={sessionId}
         aiAnalysis={aiAnalysis}
         geminiReport={geminiReport}
         syncStatus={syncStatus}
+        width={sidebarWidth}
       />
 
       {showImport && (

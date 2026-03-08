@@ -6,14 +6,12 @@ import type { CanvasFinancials, ExpenseBreakdownItem } from '@/hooks/useCanvasFi
 import type { AccountantAnalysis, FinancialHealthReport, MacroTrendsBriefing, SyncStatus } from '@/types/api';
 import type { NodeCategory, SegmentResult } from '@/types/nodes';
 import InsightsTab from '@/components/tabs/InsightsTab';
-import OptimizationTab from '@/components/tabs/OptimizationTab';
 import { getMacro } from '@/services/compassApi';
 
-type TabId = 'financials' | 'optimization' | 'insights';
+type TabId = 'financials' | 'insights';
 const TABS: { id: TabId; label: string }[] = [
-  { id: 'financials',   label: 'Financials'  },
-  { id: 'optimization', label: 'Optimize'    },
-  { id: 'insights',     label: 'AI Insights' },
+  { id: 'financials', label: 'Financials'  },
+  { id: 'insights',   label: 'AI Insights' },
 ];
 
 const CATEGORY_META: Record<NodeCategory, { bar: string; badge: string; text: string }> = {
@@ -216,19 +214,22 @@ interface Props {
   aiAnalysis: AccountantAnalysis | null;
   geminiReport: FinancialHealthReport | null;
   syncStatus: SyncStatus;
+  width?: number;
 }
 
-export default function SummarySidebar({ financials, sessionId, aiAnalysis, geminiReport, syncStatus }: Props) {
+export default function SummarySidebar({ financials, sessionId, aiAnalysis, geminiReport, syncStatus, width }: Props) {
   const [activeTab, setActiveTab] = useState<TabId>('financials');
   const [macro, setMacro] = useState<MacroTrendsBriefing | null>(null);
-  const backendOnline = syncStatus !== 'error';
 
   useEffect(() => {
     getMacro().then(setMacro).catch(() => {});
   }, []);
 
   return (
-    <aside className="w-72 flex flex-col shrink-0 overflow-hidden" style={{ background: 'var(--cream)', borderLeft: '1px solid var(--forest-rim)' }}>
+    <aside
+      className="flex flex-col shrink-0 overflow-hidden"
+      style={{ background: 'var(--cream)', borderLeft: '1px solid var(--forest-rim)', width: width ?? 288 }}
+    >
       <div className="flex shrink-0" style={{ borderBottom: '1px solid var(--forest-rim)' }}>
         {TABS.map((t) => (
           <button
@@ -247,13 +248,6 @@ export default function SummarySidebar({ financials, sessionId, aiAnalysis, gemi
 
       {activeTab === 'financials' && (
         <FinancialsTab f={financials} syncStatus={syncStatus} />
-      )}
-      {activeTab === 'optimization' && (
-        <OptimizationTab
-          backendOnline={backendOnline}
-          financialReport={geminiReport}
-          syncStatus={syncStatus}
-        />
       )}
       {activeTab === 'insights' && (
         <InsightsTab
