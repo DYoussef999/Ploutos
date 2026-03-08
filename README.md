@@ -1,11 +1,11 @@
-# Compass AI
+# Ploutos
 
 **A visual financial sandbox for Canadian small businesses.**
 Built at Hack Canada 2026.
 
 ---
 
-Most small business owners manage their finances in their heads, a spreadsheet that's three years old, or a napkin. Compass AI turns that chaos into a living canvas — drag your revenue streams and expenses onto a board, wire them together, and watch a team of AI agents figure out what it all means.
+Most small business owners manage their finances in their heads, a spreadsheet that's three years old, or a napkin. Ploutos turns that chaos into a living canvas — drag your revenue streams and expenses onto a board, wire them together, and watch a team of AI agents figure out what it all means.
 
 The idea is simple: you shouldn't need an MBA to understand your burn rate or whether opening a second location in Winnipeg actually makes sense.
 
@@ -26,9 +26,9 @@ We ended up with two parallel AI stacks because each solved a different problem:
 **Layer 1 — Backboard AI**
 [Backboard](https://backboard.io) gave us persistent agent threads and a clean orchestration API. We have three assistants living on Backboard:
 
-- **Compass-Accountant** — receives your canvas state on every sync, crunches your financials, and writes back an analysis with a health score and flagged risks.
-- **Compass-Scout** — your expansion specialist. Send it a list of Canadian cities and it uses a tool-call loop to pull census data, rent estimates, and foot traffic signals, then ranks each location by a viability score.
-- **Compass-Ingestor** — paste in a Google Sheet or CSV, and it parses the mess into structured canvas nodes.
+- **Ploutos-Accountant** — receives your canvas state on every sync, crunches your financials, and writes back an analysis with a health score and flagged risks.
+- **Ploutos-Scout** — your expansion specialist. Send it a list of Canadian cities and it uses a tool-call loop to pull census data, rent estimates, and foot traffic signals, then ranks each location by a viability score.
+- **Ploutos-Ingestor** — paste in a Google Sheet or CSV, and it parses the mess into structured canvas nodes.
 
 The Scout uses a real tool loop: it sends a message, processes `tool_calls`, submits `ToolOutput`, and keeps cycling until the model stops calling tools. This is where Backboard's thread model actually shines — the agent has memory across a session without us manually stitching context together.
 
@@ -100,17 +100,16 @@ Then open `http://localhost:3000/sandbox` and start dropping nodes.
 
 ---
 
-## Sponsors
+## APIs & Tools Used
 
-None of this gets built in a weekend without good APIs and the teams behind them:
-
-- **[Backboard AI](https://backboard.io)** — the agent thread orchestration that made our multi-step tool loops actually work without writing a state machine from scratch.
-- **[Google Gemini](https://deepmind.google/technologies/gemini/)** — fast, capable reasoning that handles both financial analysis and location viability in one model.
-- **[Auth0](https://auth0.com)** — authentication that just works so we could spend time on the actual product.
-- **[Square](https://developer.squareup.com)** — commerce APIs and sandbox that let us pull real product catalog data without needing a live merchant account.
-- **[Bank of Canada](https://www.bankofcanada.ca/valet/docs)** — the Valet API is genuinely one of the cleanest public data APIs in Canada.
-- **[Statistics Canada](https://www.statcan.gc.ca)** — 2021 Census data that makes the expansion viability scores actually grounded in reality.
-- **Hack Canada** — for running the event and giving us a reason to build something.
+- **[Backboard AI](https://backboard.io)** — agent thread orchestration and persistent memory across sessions
+- **[Google Gemini](https://deepmind.google/technologies/gemini/)** — financial analysis and location viability reasoning
+- **[Auth0](https://auth0.com)** — authentication
+- **[Square](https://developer.squareup.com)** — commerce APIs for real product catalog data
+- **[Bank of Canada Valet API](https://www.bankofcanada.ca/valet/docs)** — live interest rates and CPI
+- **[Statistics Canada](https://www.statcan.gc.ca)** — 2021 Census demographics
+- **[FRED](https://fred.stlouisfed.org)** — economic indicator cross-reference
+- **[UPC Item DB](https://www.upcitemdb.com)** — product lookup
 
 ---
 
