@@ -2,16 +2,61 @@
 .claude/
 CLAUDE.md
 
+# Environment variables (NEVER commit .env files)
+.env
+.env.local
+.env.*.local
+.env.*.production
+
 # Python
 __pycache__/
 *.pyc
 *.pyo
-.env
+*.pyd
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 venv/
 .venv/
+ENV/
+env/
 
 # Node
+node_modules/
 frontend/node_modules/
 frontend/.next/
 frontend/.env*.local
 frontend/out/
+frontend/dist/
+npm-debug.log
+yarn-error.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Temporary files
+*.tmp
+*.temp
+*.log

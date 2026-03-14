@@ -142,5 +142,5 @@ export async function autoWireNodes(
   return post('/canvas/auto-wire', {
     revenue_nodes: revenueNodes,
     expense_nodes: expenseNodes,
-  }, 60000); // 60 second timeout for auto-wire since it can be slow
+  }, 210000); // 210 second timeout (3.5 minutes) — backend has 180s timeout + network overhead
 }

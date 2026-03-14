@@ -67,10 +67,7 @@ export default function AuthPage() {
         <div className="relative z-10 fade-up fade-up-1">
           <Link href="/" className="inline-flex items-center gap-1.5">
             <span style={{ fontFamily: "'Playfair Display', serif", color: 'var(--forest)' }} className="text-xl font-bold">
-              LaunchPad
-            </span>
-            <span style={{ fontFamily: "'Playfair Display', serif", color: 'var(--sage)' }} className="text-xl font-bold">
-              AI
+              Ploutos
             </span>
           </Link>
         </div>
@@ -84,7 +81,7 @@ export default function AuthPage() {
             The smartest move your business will make.
           </h2>
           <p className="text-sm leading-relaxed mb-12" style={{ color: 'var(--moss)', maxWidth: 320 }}>
-            Join thousands of business owners who found their perfect location with LaunchPad AI.
+            Join business owners who found their perfect location with Ploutos.
           </p>
 
           <div className="flex flex-col gap-3">
@@ -130,7 +127,7 @@ export default function AuthPage() {
               Your next location starts here.
             </h1>
             <p className="text-sm" style={{ color: 'var(--sage)' }}>
-              Sign in or create your free LaunchPad AI account.
+              Sign in or create your free Ploutos account.
             </p>
           </div>
 

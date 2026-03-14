@@ -84,10 +84,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-6 lg:px-8 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-1.5">
             <span style={{ fontFamily: "'Playfair Display', serif", color: 'var(--forest)' }} className="text-xl font-bold">
-              LaunchPad
-            </span>
-            <span style={{ fontFamily: "'Playfair Display', serif", color: 'var(--sage)' }} className="text-xl font-bold">
-              AI
+              Ploutos
             </span>
           </Link>
 
@@ -219,7 +216,7 @@ export default function Home() {
       </h1>
 
             <p className="text-lg lg:text-xl leading-relaxed mb-10 max-w-lg" style={{ color: 'var(--moss)' }}>
-        LaunchPad AI helps small businesses simulate expansion decisions, estimate
+        Ploutos helps small businesses simulate expansion decisions, estimate
               revenue and costs, and find the best locations to grow — all powered by AI.
             </p>
 
@@ -465,11 +462,10 @@ export default function Home() {
       <footer className="border-t py-10" style={{ background: 'var(--cream)', borderColor: 'var(--forest-rim)' }}>
         <div className="max-w-7xl mx-auto px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-1.5">
-            <span style={{ fontFamily: "'Playfair Display', serif", color: 'var(--forest)' }} className="text-lg font-bold">LaunchPad</span>
-            <span style={{ fontFamily: "'Playfair Display', serif", color: 'var(--sage)' }} className="text-lg font-bold">AI</span>
+            <span style={{ fontFamily: "'Playfair Display', serif", color: 'var(--forest)' }} className="text-lg font-bold">Ploutos</span>
           </div>
           <p className="text-sm" style={{ color: 'var(--moss)', opacity: 0.6 }}>
-            &copy; {new Date().getFullYear()} LaunchPad AI. Built for Hack Canada.
+            &copy; {new Date().getFullYear()} Ploutos. Built for Hack Canada 2026.
           </p>
       </div>
       </footer>

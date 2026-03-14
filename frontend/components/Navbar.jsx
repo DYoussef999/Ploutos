@@ -8,7 +8,7 @@ import { useUser } from '@auth0/nextjs-auth0/client';
 const navLinks = [
   { label: 'Dashboard', href: '/dashboard' },
   { label: 'Financial Sandbox', href: '/sandbox' },
-  { label: 'Expansion Map', href: '/expansion' },
+  { label: 'Expansion Map', href: '/maps' },
 ];
 
 export default function Navbar() {
